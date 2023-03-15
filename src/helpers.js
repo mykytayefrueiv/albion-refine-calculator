@@ -9,6 +9,7 @@ import {
 	REFINED_TO_RAW,
 	RESOURCE_TYPE
 } from "./constants";
+import {DateTime} from "luxon";
 
 export const isLowLevel = (level) => level === PRE_LEVELS.LEVEL1 ||
 	level === PRE_LEVELS.LEVEL2 ||
@@ -25,28 +26,32 @@ export const getUrlFor = resource => {
 	return join([...allLevels, ...withEnchance], ',');
 };
 
-export const transformToTable = data => map(groupBy(data, 'item_id'), (value, key) => {
-		const blackMarket = find(value, { city: 'Black Market' });
+export const transformToTable = (data, chartData) => map(groupBy(data, 'item_id'), (value, key) => {
+	const blackMarket = find(value, { city: 'Black Market' });
 
-		const citiesPrices = reduce(value, (sum, val) => ({
-			...sum,
-			[val.city]: val.sell_price_min
-				? `${val.sell_price_min} (${Math.round(((1 - val.sell_price_min / (blackMarket.sell_price_min - blackMarket.sell_price_min * 0.0065)) * 100))})`
-				: ''
-		}), {});
+	const citiesPrices = reduce(value, (sum, val) => ({
+		...sum,
+		[val.city]: val.sell_price_min
+			? `${val.sell_price_min} (${Math.round(((1 - val.sell_price_min / (blackMarket.sell_price_min - blackMarket.sell_price_min * 0.0065)) * 100))})`
+			: ''
+	}), {});
 
-		const minPrice = citiesPrices['Black Market'];
-		const maxPrice = Math.max(...values(citiesPrices));
+	const minPrice = citiesPrices['Black Market'];
+	const maxPrice = Math.max(...values(citiesPrices));
 
-		const profit =  minPrice / (maxPrice - maxPrice * 0.0065);
-		const visibleProfit = !isNaN(minPrice) && !isNaN(maxPrice) ? Math.round((1 - profit) * 100) : 0
+	const profit =  minPrice / (maxPrice - maxPrice * 0.0065);
+	const visibleProfit = !isNaN(minPrice) && !isNaN(maxPrice) ? Math.round((1 - profit) * 100) : 0
 
 
-		return {
-			item_id: key,
-			name: find(items, { UniqueName: key }).LocalizedNames["RU-RU"],
-			...citiesPrices,
-		};
+	return {
+		item_id: key,
+		chartData: map(find(chartData, { item_id: key })?.data, (item) => ({
+			...item,
+			timestamp: DateTime.fromISO(item.timestamp).toFormat('yyyy-MM-dd'),
+		})),
+		name: find(items, { UniqueName: key }).LocalizedNames["RU-RU"],
+		...citiesPrices,
+	};
 	}
 );
 
