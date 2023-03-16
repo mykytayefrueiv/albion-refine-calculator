@@ -1,4 +1,4 @@
-import {filter, find, groupBy, includes, join, map, minBy, reduce, reject, values} from "lodash";
+import {filter, find, groupBy, includes, isNumber, join, map, minBy, reduce, reject, values} from "lodash";
 import items from "./items.json";
 import {
 	CRAFTING,
@@ -26,13 +26,21 @@ export const getUrlFor = resource => {
 	return join([...allLevels, ...withEnchance], ',');
 };
 
+const toBeautiful = (price) => isNumber(price) && price !== 0 ? new Intl.NumberFormat('de-DE').format(price) : price;
+
+const calculateProfit = (blackMarketPrice, anotherCityPrice) => isNumber(blackMarketPrice) && isNumber(anotherCityPrice) && blackMarketPrice !== 0 && anotherCityPrice !== 0
+	? `(${Math.round(((1 - anotherCityPrice / (blackMarketPrice - blackMarketPrice * 0.0065)) * 100))}%)`
+	: '';
+
 export const transformToTable = (data, chartData) => map(groupBy(data, 'item_id'), (value, key) => {
 	const blackMarket = find(value, { city: 'Black Market' });
 
 	const citiesPrices = reduce(value, (sum, val) => ({
 		...sum,
 		[val.city]: val.sell_price_min
-			? `${val.sell_price_min} (${Math.round(((1 - val.sell_price_min / (blackMarket.sell_price_min - blackMarket.sell_price_min * 0.0065)) * 100))})`
+			? val.city === 'Black Market'
+				? toBeautiful(val.sell_price_min)
+				: `${toBeautiful(val.sell_price_min)} ${calculateProfit(blackMarket.sell_price_min, val.sell_price_min)}`
 			: ''
 	}), {});
 

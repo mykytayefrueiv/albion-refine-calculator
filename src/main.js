@@ -109,7 +109,7 @@ function Main() {
 					<tbody>{map(rawData, (element) => (<tr key={element.item_id}>
 						<td>{element.item_id}</td>
 						<td>{element.name}</td>
-						{map(selectedCities, name => (<th>
+						{map(selectedCities, name => (<td>
 							<Flex
 								justify="center"
 								align="center"
@@ -136,7 +136,7 @@ function Main() {
 									<XAxis dataKey="timestamp" />
 								</ComposedChart>}
 							</Flex>
-						</th>))}
+						</td>))}
 					</tr>))}
 					</tbody>
 				</Table>
