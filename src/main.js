@@ -56,7 +56,7 @@ function Main() {
 		const filterByQuality = filter(raw, {quality: 2});
 		const filterByCity = filter(filterByQuality, ({city}) => includes(selectedCities, city));
 
-		const chartData = await(await fetch(`https://www.europe.albion-online-data.com/api/v2/stats/history/${armorUrl}?time-scale=24&locations=Black%20Market&qualities=2&date=${lastWeek}`)).json();
+		const chartData = await(await fetch(`https://europe.albion-online-data.com/api/v2/stats/history/${armorUrl}?time-scale=24&locations=Black%20Market&qualities=2&date=${lastWeek}`)).json();
 
 		return transformToTable(filterByCity, chartData);
 	}, {

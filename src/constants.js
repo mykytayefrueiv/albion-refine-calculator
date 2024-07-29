@@ -130,4 +130,4 @@ export const CITIES = [
 	'Arthurs Rest',
 ];
 
-export const url = 'https://www.albion-online-data.com/api/v2/stats/prices';
+export const url = 'https://europe.albion-online-data.com/api/v2/stats/prices';
